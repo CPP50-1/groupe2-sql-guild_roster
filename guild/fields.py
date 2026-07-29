@@ -18,11 +18,10 @@ pattern as IntField. It should:
     RangeError) that Validated already raises for the other field types
 --------------------------------------------------------------------------
 """
+
 from __future__ import annotations
 
 from typing import Any, Optional, Type
-
-from .exceptions import RangeError, RequiredFieldError, TypeMismatchError
 
 
 class Field:
@@ -76,9 +75,13 @@ class Validated(Field):
         if not isinstance(value, self.expected_type):
             raise TypeMismatchError(self.name, self.expected_type, value)
         if self.minimum is not None and value < self.minimum:
-            raise RangeError(self.name, value, minimum=self.minimum, maximum=self.maximum)
+            raise RangeError(
+                self.name, value, minimum=self.minimum, maximum=self.maximum
+            )
         if self.maximum is not None and value > self.maximum:
-            raise RangeError(self.name, value, minimum=self.minimum, maximum=self.maximum)
+            raise RangeError(
+                self.name, value, minimum=self.minimum, maximum=self.maximum
+            )
 
 
 class StringField(Validated):
@@ -90,7 +93,11 @@ class StringField(Validated):
 
     def validate(self, value: Any) -> None:
         super().validate(value)
-        if value is not None and self.max_length is not None and len(value) > self.max_length:
+        if (
+            value is not None
+            and self.max_length is not None
+            and len(value) > self.max_length
+        ):
             raise RangeError(self.name, value, maximum=self.max_length)
         if value is not None and value.strip() == "" and self.required:
             raise RequiredFieldError(self.name)
@@ -99,17 +106,46 @@ class StringField(Validated):
 class IntField(Validated):
     """A Validated shortcut for integers, with optional min/max bounds."""
 
-    def __init__(self, required: bool = True, minimum: Optional[int] = None, maximum: Optional[int] = None):
-        super().__init__(expected_type=int, required=required, minimum=minimum, maximum=maximum)
+    def __init__(
+        self,
+        required: bool = True,
+        minimum: Optional[int] = None,
+        maximum: Optional[int] = None,
+    ):
+        super().__init__(
+            expected_type=int, required=required, minimum=minimum, maximum=maximum
+        )
 
 
 class FloatField(Validated):
-    """TODO (Day 4): implement this the same way IntField is implemented
-    above, but accepting float values. Remember that in Python, an int
-    passed where a float is expected is usually fine (3 is a valid
-    "float-ish" value) — decide whether you want to accept plain ints too,
-    and document your choice.
+    """A Validated shortcut for floats (accepts int too, since int is
+    float-ish in Python).
     """
 
-    def __init__(self, required: bool = True, minimum: Optional[float] = None, maximum: Optional[float] = None):
-        raise NotImplementedError("TODO (Day 4): implement FloatField.__init__")
+    def __init__(
+        self,
+        required: bool = True,
+        minimum: Optional[float] = None,
+        maximum: Optional[float] = None,
+    ):
+        super().__init__(
+            expected_type=float, required=required, minimum=minimum, maximum=maximum
+        )
+
+    def validate(self, value):
+        if value is None:
+            if self.required:
+                raise ValueError(f"'{self.name}' is required and cannot be None")
+            return
+        if not isinstance(value, (float, int)):
+            raise TypeError(
+                f"'{self.name}' expected float, got {type(value).__name__} ({value!r})"
+            )
+        if self.minimum is not None and value < self.minimum:
+            raise ValueError(
+                f"'{self.name}' must be >= {self.minimum} and <= {self.maximum}, got {value!r}"
+            )
+        if self.maximum is not None and value > self.maximum:
+            raise ValueError(
+                f"'{self.name}' must be >= {self.minimum} and <= {self.maximum}, got {value!r}"
+            )

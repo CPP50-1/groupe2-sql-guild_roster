@@ -16,6 +16,7 @@ fields.py (StringField/IntField) is already working, so Character's
 fields below will validate correctly from Day 1 onward regardless of
 which of the above TODOs you've reached.
 """
+
 from __future__ import annotations
 
 from typing import Dict, Type
@@ -76,7 +77,6 @@ class Character:
         """
         return f"{type(self).__name__}(name={self.name!r}, level={self.level}, hp={self.hp})"
 
-
     def __str__(self) -> str:
         """This return an user-friendly string representation of the character.
         Grom the Warrior (Lv.2, 30 HP)
@@ -87,8 +87,12 @@ class Character:
         """
         This will compare if two objects have the same concrete type, same name AND the same level.
         """
-        if isinstance(other, Character):        # Ensures we are comparing Characters
-            return type(other)==type(self) and self.name == other.name and self.level == other.level
+        if isinstance(other, Character):  # Ensures we are comparing Characters
+            return (
+                type(other) == type(self)
+                and self.name == other.name
+                and self.level == other.level
+            )
         return False
 
     def __hash__(self) -> int:
@@ -127,6 +131,7 @@ class Rogue(Character):
 
 # --- Day 4 mixins: horizontal reuse without deep inheritance ---------------
 
+
 class HealerMixin:
     """TODO (Day 4, Dev A/whoever owns this): adds healing behavior.
 
@@ -163,10 +168,10 @@ class TankMixin:
     taunt_radius: int = 3
 
     def describe_role(self) -> str:
-        raise NotImplementedError("TODO (Day 4): implement TankMixin.describe_role")
+        return super().describe_role() + " + Tank"
 
     def taunt(self, enemies) -> list:
-        raise NotImplementedError("TODO (Day 4): implement TankMixin.taunt")
+        return list(enemies)
 
 
 class Paladin(HealerMixin, TankMixin, Warrior):
@@ -181,6 +186,7 @@ class Paladin(HealerMixin, TankMixin, Warrior):
 
 
 # --- Day 4 (independent mixin, not part of the conflict above) ------------
+
 
 class LoggableMixin:
     """TODO (Day 4, other dev): logs every attribute assignment on the
