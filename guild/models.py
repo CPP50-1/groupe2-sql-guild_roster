@@ -189,31 +189,22 @@ class Paladin(HealerMixin, TankMixin, Warrior):
 
 
 class LoggableMixin:
-    """TODO (Day 4, other dev): logs every attribute assignment on the
-    instance into self._log (a list of strings).
-
-    Two things to get right:
-      1. __init__ needs to set up self._log = [] BEFORE calling
-         super().__init__(...), and must do so via self.__dict__ directly
-         (not `self._log = []`) to avoid triggering your own __setattr__
-         override recursively before _log exists.
-      2. __setattr__ should append an entry (e.g. f"{name} = {value!r}")
-         for every assignment except to _log itself, then still actually
-         perform the assignment via super().__setattr__(...).
-
-    `log` should be a read-only property returning a copy of the list
-    (not the live list itself).
-    """
 
     def __init__(self, *args, **kwargs):
-        raise NotImplementedError("TODO (Day 4): implement LoggableMixin.__init__")
+        # Initialize directly to avoid setattr trigger
+        self.__dict__["_log"] = []
+        super().__init__(*args, **kwargs)
+
 
     def __setattr__(self, name: str, value) -> None:
-        raise NotImplementedError("TODO (Day 4): implement LoggableMixin.__setattr__")
+        if name != "_log":
+            self._log.append(f"{name} = {value!r}")
+        super().__setattr__(name, value)
+
 
     @property
     def log(self) -> list:
-        raise NotImplementedError("TODO (Day 4): implement LoggableMixin.log")
+        return self._log.copy()
 
 
 class LoggedMage(LoggableMixin, Mage):
