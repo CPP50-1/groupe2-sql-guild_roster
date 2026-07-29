@@ -7,13 +7,17 @@
    working example of exactly this pattern (a generator wrapped in
    @contextmanager) — before writing this one from scratch.
 """
+
 from __future__ import annotations
+
+import random
 
 from contextlib import contextmanager
 from typing import Dict, Iterator, List
 
 
 # --- TODO (Day 3): yield-from delegation + lazy infinite sequence ----------
+
 
 def floor_encounters(floor_number: int, dungeon_log: List[str]) -> Iterator[Dict]:
     """TODO: one floor's worth of encounters.
@@ -33,7 +37,31 @@ def floor_encounters(floor_number: int, dungeon_log: List[str]) -> Iterator[Dict
         ends via retreat, via clearing it, or via the caller closing the
         whole dungeon mid-floor.
     """
-    raise NotImplementedError("TODO (Day 3): implement floor_encounters")
+
+    dungeon_log.append(f"Entering floor {floor_number}")
+
+    bonus = int(floor_number / 1.5)
+    monsters = 1 + random.randint(0, bonus)
+    chests = 1 + random.randint(0, bonus)
+
+    encounters = [{"type": "monster", "floor": floor_number}] * monsters + [
+        {"type": "chest", "floor": floor_number}
+    ] * chests
+    if floor_number % 3 == 0:
+        encounters.append({"type": "trap", "floor": floor_number})
+
+    random.shuffle(encounters)
+
+    try:
+        for encounter in encounters:
+            action = yield encounter
+            if action == "retreat":
+                dungeon_log.append("Party retreats mid-floor.")
+                return "retreated"
+        dungeon_log.append(f"Floor {floor_number} cleared.")
+        return "cleared"
+    finally:
+        dungeon_log.append(f"Leaving floor {floor_number}")
 
 
 def dungeon_floors(dungeon_log: List[str]) -> Iterator[Dict]:
@@ -54,10 +82,20 @@ def dungeon_floors(dungeon_log: List[str]) -> Iterator[Dict]:
         closed." in the finally block — reached both by the `return`
         above and by GeneratorExit (i.e. the caller calling .close()).
     """
-    raise NotImplementedError("TODO (Day 3): implement dungeon_floors")
+    floor_number = 0
+    try:
+        while True:
+            floor_number += 1
+            result = yield from floor_encounters(floor_number, dungeon_log)
+            if result == "retreated":
+                dungeon_log.append("Party returns to town.")
+                return
+    finally:
+        dungeon_log.append("Dungeon generator closed.")
 
 
 # --- TODO (Day 3): guild treasury transaction --------------------------------
+
 
 @contextmanager
 def guild_transaction(treasury: Dict[str, int]) -> Iterator[Dict[str, int]]:
@@ -75,4 +113,10 @@ def guild_transaction(treasury: Dict[str, int]) -> Iterator[Dict[str, int]]:
         suppress it. (Suppressing would mean *not* re-raising; that would
         be the wrong choice here, and worth being able to explain why.)
     """
-    raise NotImplementedError("TODO (Day 3): implement guild_transaction")
+    saved_treasury = treasury.copy()
+    try:
+        yield treasury
+    except Exception:
+        treasury.clear()
+        treasury.update(saved_treasury)
+        raise
