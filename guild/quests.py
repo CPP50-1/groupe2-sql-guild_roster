@@ -30,70 +30,62 @@ def event_quests() -> Iterator[Quest]:
     yield {"name": "Harvest Festival Errand", "reward_gold": 15, "min_level": 1}
 
 
-# --- TODO (Day 3): combine sources with itertools.chain ---------------------
-
 def combined_quest_feed() -> Iterator[Quest]:
-    """TODO: use itertools.chain to treat the three quest sources above as
-    one continuous stream, without materializing any of them into a
-    combined list first.
-    """
-    raise NotImplementedError("TODO (Day 3): implement combined_quest_feed")
 
+   return itertools.chain(
+        daily_quests(),
+        guild_quests(),
+        event_quests(),
+    )
 
-# --- TODO (Day 3): an infinite source + itertools.islice --------------------
 
 def endless_bounty_quests() -> Iterator[Quest]:
-    """TODO: an intentionally infinite generator (use itertools.count) —
-    bounty postings that never stop being generated, with a slowly
-    increasing reward, e.g. reward_gold = 10 + i * 5 and
-    min_level = 1 + i // 3 for i starting at 1.
-    """
-    raise NotImplementedError("TODO (Day 3): implement endless_bounty_quests")
+    for i in itertools.count(1):
+        yield {
+            "name": f"Bounty Posting #{i}",
+            "reward_gold": 10 + i * 5,
+            "min_level": 1 + i // 3,
+        }
 
 
 def first_n_bounties(n: int) -> List[Quest]:
-    """TODO: use itertools.islice to pull exactly n items from
-    endless_bounty_quests() without ever asking it to produce more than
-    that.
-    """
-    raise NotImplementedError("TODO (Day 3): implement first_n_bounties")
+    return list(itertools.islice(endless_bounty_quests(), n))
 
-
-# --- TODO (Day 3): itertools.takewhile ---------------------------------------
 
 def quests_under_budget(quests: Iterable[Quest], budget: int) -> List[Quest]:
-    """TODO: sort `quests` by reward_gold ascending, then use
-    itertools.takewhile to collect quests while reward_gold < budget.
+    sorted_quests = sorted(
+        quests,
+        key=lambda quest: quest["reward_gold"],
+    )
 
-    Think carefully about why the sort has to happen first: takewhile
-    stops at the *first* item that fails the predicate, unlike filter()
-    which checks every item. Skipping the sort would silently produce a
-    wrong (too-short) result rather than an error — worth testing that
-    failure mode yourself once, deliberately, before moving on.
-    """
-    raise NotImplementedError("TODO (Day 3): implement quests_under_budget")
+    return list(
+        itertools.takewhile(
+            lambda quest: quest["reward_gold"] < budget,
+            sorted_quests,
+        )
+    )
 
-
-# --- TODO (Day 3): itertools.groupby -----------------------------------------
 
 def group_roster_by_role(characters: Iterable[Character]) -> Dict[str, List[Character]]:
-    """TODO: sort `characters` by describe_role(), then use
-    itertools.groupby (also keyed by describe_role()) to build a dict of
-    role -> list of characters.
+    sorted_characters = sorted(
+        characters,
+        key=lambda character: character.describe_role(),
+    )
 
-    itertools.groupby only groups *consecutive* runs of the same key —
-    without the sort first, characters of the same role that aren't
-    adjacent in the input would end up in separate groups.
-    """
-    raise NotImplementedError("TODO (Day 3): implement group_roster_by_role")
+    return {
+        role: list(group)
+        for role, group in itertools.groupby(
+            sorted_characters,
+            key=lambda character: character.describe_role(),
+        )
+    }
 
-
-# --- TODO (Day 3): itertools.product -----------------------------------------
 
 def eligible_assignments(
     characters: Iterable[Character], quests: Iterable[Quest]
 ) -> List[tuple]:
-    """TODO: use itertools.product to build every (character, quest) pair,
-    then filter down to pairs where character.level >= quest["min_level"].
-    """
-    raise NotImplementedError("TODO (Day 3): implement eligible_assignments")
+    return [
+        (character, quest)
+        for character, quest in itertools.product(characters, quests)
+        if character.level >= quest["min_level"]
+    ]
