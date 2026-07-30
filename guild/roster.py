@@ -33,30 +33,46 @@ class OrderedSet:
             self.add(item)
 
     def add(self, item: Any) -> None:
-        """TODO (Day 2): add item, no-op if it's already present."""
-        raise NotImplementedError("TODO (Day 2): implement OrderedSet.add")
+        self._data[item] = None
 
     def discard(self, item: Any) -> None:
-        """TODO (Day 2): remove item if present; do nothing if it isn't."""
-        raise NotImplementedError("TODO (Day 2): implement OrderedSet.discard")
+        self._data.pop(item, None)
 
     def __contains__(self, item: Any) -> bool:
-        raise NotImplementedError("TODO (Day 2): implement OrderedSet.__contains__")
+        return item in self._data
 
     def __iter__(self) -> Iterator[Any]:
-        raise NotImplementedError("TODO (Day 2): implement OrderedSet.__iter__")
+        return iter(self._data)
 
     def __len__(self) -> int:
-        raise NotImplementedError("TODO (Day 2): implement OrderedSet.__len__")
+        return len(self._data)
 
     def __repr__(self) -> str:
-        raise NotImplementedError("TODO (Day 2): implement OrderedSet.__repr__")
+        return repr(self._data)
 
     def __eq__(self, other: object) -> bool:
-        """TODO (Day 2): two OrderedSets are equal if they contain the
-        same items in the same order.
-        """
-        raise NotImplementedError("TODO (Day 2): implement OrderedSet.__eq__")
+        return isinstance(other, OrderedSet) and self._data == other._data
+
+    def __or__(self, other: Any) -> OrderedSet:
+        if not isinstance(other, OrderedSet):
+            return NotImplemented
+        new_items = list(self) + \
+            [item for item in other if item not in self._data]
+        return self.__class__(new_items)
+
+    def __and__(self, other: Any) -> OrderedSet:
+        if not isinstance(other, OrderedSet):
+            return NotImplemented
+        other_set = set(other)
+        new_items = [item for item in self if item in other_set]
+        return self.__class__(new_items)
+
+    def __sub__(self, other: Any) -> OrderedSet:
+        if not isinstance(other, OrderedSet):
+            return NotImplemented
+        other_set = set(other)
+        new_items = [item for item in self if item not in other_set]
+        return self.__class__(new_items)
 
 
 # --- Dev B: memoized callable ------------------------------------------------
@@ -123,8 +139,6 @@ class Roster:
         if 0<= index < len(self._characters):
             return self._characters[index]
 
-        raise NotImplementedError("TODO (Day 2): implement what to do if index is out of range.")
-
     def __setitem__(self, index: int, value: Character) -> None:
         if not isinstance(value, Character):
             raise TypeError("Wrong type for Roster.__setitem__. 'value' should be a Character.")
@@ -133,14 +147,10 @@ class Roster:
             self._characters[index] = value
             return
 
-        raise NotImplementedError("TODO (Day 2): implement what to do if index is out of range.")
-
     def __delitem__(self, index: int) -> None:
         if 0 <= index < len(self._characters):
             self._characters.pop(index)
             return
-
-        raise NotImplementedError("TODO (Day 2): implement what to do if index is out of range.")
 
     def __contains__(self, item: Character) -> bool:
         return item in self._characters

@@ -9,12 +9,14 @@ Usage sketch once implemented:
     state = fight.throw(AmbushError()) # simulate an interrupt mid-battle
     fight.close()                      # abandon the fight cleanly
 """
+
 from __future__ import annotations
 
 from typing import Dict, Generator, List
+from unittest import case
 
 from .exceptions import GuildError
-from .models import Character
+from .models import Character, Warrior, Rogue
 
 
 class AmbushError(GuildError):
@@ -22,16 +24,7 @@ class AmbushError(GuildError):
     exercises Generator.throw() specifically.
     """
 
-
-def battle(
-    character: Character,
-    combat_log: List[str],
-    enemy_name: str = "Goblin",
-    enemy_hp: int = 30,
-    enemy_attack: int = 5,
-) -> Generator[Dict, str, None]:
-    """TODO (Day 3): a generator-based combat loop.
-
+    """
     Requirements:
       - Append a "X appears!" style line to combat_log at the start.
       - Loop while both character_hp and enemy_hp are above 0. Each
@@ -58,4 +51,69 @@ def battle(
     generator locals disappear once the frame ends — this is why the log
     needs to live outside the generator itself.
     """
-    raise NotImplementedError("TODO (Day 3): implement battle()")
+
+
+def battle(
+    character: Character,
+    combat_log: List[str],
+    enemy_name: str = "Goblin",
+    enemy_hp: int = 30,
+    enemy_attack: int = 5,
+) -> Generator[Dict, str, None]:
+    combat_log.append(f"{enemy_name} appears!")
+    try:
+        while character.hp > 0 and enemy_hp > 0:
+            action = yield {
+                "character": character,
+                "combat_log": combat_log,
+                "enemy_hp": enemy_hp,
+            }
+
+            match action:
+                case "attack":
+                    enemy_hp -= 10  # Scharacter.level
+                    combat_log.append(
+                        f"{character.name} hits {enemy_name}. {character.name}.hp = {character.hp}, {enemy_name}.hp = {enemy_hp}"
+                    )
+                    if enemy_hp > 0:
+                        character.hp -= enemy_attack
+                        combat_log.append(
+                            f"{enemy_name} hits back {character.name}. {character.name}.hp = {character.hp}, {enemy_name}.hp = {enemy_hp}"
+                        )
+                case "heal":
+                    cap = character.base_hp * character.level
+                    character.hp = min(character.hp + character.level, cap)
+                    combat_log.append(
+                        f"{character.name} heals. {character.name}.hp = {character.hp}"
+                    )
+                case "flee":
+                    combat_log.append(
+                        f"{character.name} flees from {enemy_name}!")
+                    return
+                case _:
+                    combat_log.append(
+                        f"{character.name} hesitates, unsure what to do.")
+
+        outcome = "victory" if enemy_hp <= 0 else "defeat"
+        combat_log.append(f"Battle ends in {outcome} for {character.name}.")
+        yield {
+            "character": character,
+            "combat_log": combat_log,
+            "enemy_hp": enemy_hp,
+            "outcome": outcome,
+        }
+
+    except AmbushError:
+        character.hp -= enemy_attack
+        combat_log.append(
+            f"Ambush! {enemy_name} ambushes {character.name}! {character.name}.hp = {character.hp}"
+        )
+        yield {
+            "character": character,
+            "combat_log": combat_log,
+            "enemy_hp": enemy_hp,
+            "ambushed": True,
+        }
+
+    finally:
+        combat_log.append("Combat generator closed.")

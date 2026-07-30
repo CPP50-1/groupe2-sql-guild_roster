@@ -7,6 +7,7 @@ Rarity and __init__ are given. Your job is the dunder methods below.
 Remember the pairing rule: __eq__ and __hash__ must always be defined
 together and stay consistent, or Item becomes unusable in sets/dicts.
 """
+
 from __future__ import annotations
 
 from functools import total_ordering
@@ -17,6 +18,7 @@ class Rarity(IntEnum):
     """IntEnum so rarities compare naturally (COMMON < RARE < LEGENDARY)
     without any extra work — this is used by Item.__lt__ below.
     """
+
     COMMON = 1
     UNCOMMON = 2
     RARE = 3
@@ -39,7 +41,9 @@ class Item:
         self.value = value
 
     def __repr__(self) -> str:
-        return f"Item(name='{self.name}', rarity={self.rarity.name}, value={self.value})"
+        return (
+            f"Item(name='{self.name}', rarity={self.rarity.name}, value={self.value})"
+        )
 
     def __str__(self) -> str:
         return f"{self.name} ({self.rarity.name.title()}, {self.value}g)"
@@ -48,7 +52,11 @@ class Item:
         if not isinstance(other, Item):
             return NotImplemented
         else:
-            return self.name == other.name and self.rarity == other.rarity and self.value == other.value
+            return (
+                self.name == other.name
+                and self.rarity == other.rarity
+                and self.value == other.value
+            )
 
     def __hash__(self) -> int:
         """Must stay consistent with __eq__."""
@@ -63,3 +71,18 @@ class Item:
     def __bool__(self) -> bool:
         """Truthy if the item has any value."""
         return self.value != 0
+
+    def __add__(self, other: Item) -> Item:
+        if not isinstance(other, Item):
+            return NotImplemented
+        if self.name != other.name or self.rarity != other.rarity:
+            raise TypeError()
+        return Item(self.name, self.rarity, self.value + other.value)
+
+    def __format__(self, format_spec: str) -> str:
+        if format_spec == "short":
+            return self.name
+        elif format_spec == "full":
+            return f"{self.name} ({self.rarity.name.title()}, {self.value})"
+        else:
+            return str(self)

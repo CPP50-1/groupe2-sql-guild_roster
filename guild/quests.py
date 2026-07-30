@@ -4,6 +4,7 @@ The three quest-source generators below are given (they're just static
 data). Everything that actually combines/filters/groups them using
 itertools is a TODO.
 """
+
 from __future__ import annotations
 
 import itertools
@@ -15,6 +16,7 @@ Quest = Dict[str, object]
 
 
 # --- Static quest sources, given -------------------------------------------
+
 
 def daily_quests() -> Iterator[Quest]:
     yield {"name": "Clear the Rat Cellar", "reward_gold": 20, "min_level": 1}
@@ -39,6 +41,7 @@ def combined_quest_feed() -> Iterator[Quest]:
     )
 
 
+
 def endless_bounty_quests() -> Iterator[Quest]:
     for i in itertools.count(1):
         yield {
@@ -50,6 +53,7 @@ def endless_bounty_quests() -> Iterator[Quest]:
 
 def first_n_bounties(n: int) -> List[Quest]:
     return list(itertools.islice(endless_bounty_quests(), n))
+
 
 
 def quests_under_budget(quests: Iterable[Quest], budget: int) -> List[Quest]:
@@ -66,6 +70,7 @@ def quests_under_budget(quests: Iterable[Quest], budget: int) -> List[Quest]:
     )
 
 
+
 def group_roster_by_role(characters: Iterable[Character]) -> Dict[str, List[Character]]:
     sorted_characters = sorted(
         characters,
@@ -79,6 +84,7 @@ def group_roster_by_role(characters: Iterable[Character]) -> Dict[str, List[Char
             key=lambda character: character.describe_role(),
         )
     }
+
 
 
 def eligible_assignments(

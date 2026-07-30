@@ -23,6 +23,8 @@ from __future__ import annotations
 
 from typing import Any, Optional, Type
 
+from .exceptions import RangeError, RequiredFieldError, TypeMismatchError
+
 
 class Field:
     """Base descriptor: a data descriptor (defines both __get__ and __set__,
@@ -118,8 +120,11 @@ class IntField(Validated):
 
 
 class FloatField(Validated):
-    """A Validated shortcut for floats (accepts int too, since int is
-    float-ish in Python).
+    """implement this the same way IntField is implemented
+    above, but accepting float values. Remember that in Python, an int
+    passed where a float is expected is usually fine (3 is a valid
+    "float-ish" value) — decide whether you want to accept plain ints too,
+    and document your choice.
     """
 
     def __init__(

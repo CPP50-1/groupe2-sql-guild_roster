@@ -8,6 +8,7 @@ working example of the exact `@contextlib.contextmanager` pattern you'll
 be asked to write yourself for `guild_transaction` in dungeon.py — use it
 as your reference, not just documentation.
 """
+
 from __future__ import annotations
 
 from contextlib import contextmanager

@@ -47,12 +47,15 @@ class GuildMeta(type):
     registry: Dict[str, Type["Character"]] = {}
 
     def __new__(mcs, name, bases, namespace, **kwargs):
-        raise NotImplementedError("TODO (Day 5): implement GuildMeta.__new__")
+        cls = super().__new__(mcs, name, bases, namespace, **kwargs)
+        if not bases:
+            return cls
+        if not isinstance(getattr(cls, "base_hp", None), int):
+            raise TypeError("Missing attribute base_hp in class {name}")
+        mcs.registry[name] = cls
+        return cls
 
-
-# TODO (Day 5, last step): once GuildMeta works, change the line below to:
-#     class Character(metaclass=GuildMeta):
-class Character:
+class Character(metaclass=GuildMeta):
     """Base class for every playable character."""
 
     name = StringField(max_length=50)
@@ -148,14 +151,20 @@ class HealerMixin:
     heal_power: int = 5
 
     def describe_role(self) -> str:
-        raise NotImplementedError("TODO (Day 4): implement HealerMixin.describe_role")
+        role = super().describe_role()
+        return role + " + Healer"
 
     def heal(self, target: "Character", amount: int = None) -> int:
-        raise NotImplementedError("TODO (Day 4): implement HealerMixin.heal")
+        if not amount:
+            amount = self.heal_power
+        if amount < (target.base_hp * target.level) - target.hp:
+            return target.hp + amount
+        else:
+            return target.base_hp * target.level
 
 
 class TankMixin:
-    """TODO (Day 4): adds taunt/aggro behavior.
+    """adds taunt/aggro behavior.
 
     describe_role() must call super().describe_role() and append
     " + Tank" — same cooperative-chain requirement as HealerMixin above.
@@ -168,10 +177,11 @@ class TankMixin:
     taunt_radius: int = 3
 
     def describe_role(self) -> str:
-        return super().describe_role() + " + Tank"
+        role = super().describe_role()
+        return role + " + Tank"
 
     def taunt(self, enemies) -> list:
-        return list(enemies)
+        return list(enemies[:self.taunt_radius])
 
 
 class Paladin(HealerMixin, TankMixin, Warrior):
@@ -189,6 +199,21 @@ class Paladin(HealerMixin, TankMixin, Warrior):
 
 
 class LoggableMixin:
+    """logs every attribute assignment on the
+    instance into self._log (a list of strings).
+
+    Two things to get right:
+      1. __init__ needs to set up self._log = [] BEFORE calling
+         super().__init__(...), and must do so via self.__dict__ directly
+         (not `self._log = []`) to avoid triggering your own __setattr__
+         override recursively before _log exists.
+      2. __setattr__ should append an entry (e.g. f"{name} = {value!r}")
+         for every assignment except to _log itself, then still actually
+         perform the assignment via super().__setattr__(...).
+
+    `log` should be a read-only property returning a copy of the list
+    (not the live list itself).
+    """
 
     def __init__(self, *args, **kwargs):
         # Initialize directly to avoid setattr trigger
