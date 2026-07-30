@@ -116,14 +116,18 @@ class RosterIterator:
         self._index = 0
 
     def __iter__(self) -> "RosterIterator":
-        """TODO (Day 2): an iterator must be iterable (return itself)."""
-        raise NotImplementedError("TODO (Day 2): implement RosterIterator.__iter__")
+        return self
 
     def __next__(self) -> Character:
-        """TODO (Day 2): return the next character, advance the index,
+        """ return the next character, advance the index,
         raise StopIteration once you've gone past the end.
         """
-        raise NotImplementedError("TODO (Day 2): implement RosterIterator.__next__")
+        try:
+            c = self._characters[self._index]
+            self._index += 1
+            return c
+        except IndexError:
+            raise StopIteration
 
 
 class Roster:
@@ -159,7 +163,7 @@ class Roster:
         return len(self._characters)
 
     def __iter__(self) -> RosterIterator:
-        return iter(self._characters)
+        return RosterIterator(self._characters)
 
     def __repr__(self) -> str:
         return f"{type(self).__name__}(characters={self._characters})"
