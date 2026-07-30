@@ -143,14 +143,13 @@ class FloatField(Validated):
                 raise ValueError(f"'{self.name}' is required and cannot be None")
             return
         if not isinstance(value, (float, int)):
-            raise TypeError(
-                f"'{self.name}' expected float, got {type(value).__name__} ({value!r})"
-            )
+            raise TypeMismatchError(self.name, self.expected_type, value)
         if self.minimum is not None and value < self.minimum:
             raise ValueError(
                 f"'{self.name}' must be >= {self.minimum} and <= {self.maximum}, got {value!r}"
             )
         if self.maximum is not None and value > self.maximum:
-            raise ValueError(
-                f"'{self.name}' must be >= {self.minimum} and <= {self.maximum}, got {value!r}"
-            )
+            # raise RangeError(
+            #     f"'{self.name}' must be >= {self.minimum} and <= {self.maximum}, got {value!r}"
+            # )
+            raise RangeError(self.name, value, maximum=self.maximum)
