@@ -55,6 +55,7 @@ class GuildMeta(type):
         mcs.registry[name] = cls
         return cls
 
+
 class Character(metaclass=GuildMeta):
     """Base class for every playable character."""
 
@@ -92,11 +93,12 @@ class Character(metaclass=GuildMeta):
         """
         if isinstance(other, Character):  # Ensures we are comparing Characters
             return (
-                type(other) == type(self)
-                and self.name == other.name
+                self.name == other.name
+                and self.hp == other.hp
                 and self.level == other.level
             )
-        return False
+
+        return NotImplemented
 
     def __hash__(self) -> int:
         return hash((self.name, self.hp, self.level))
@@ -181,7 +183,7 @@ class TankMixin:
         return role + " + Tank"
 
     def taunt(self, enemies) -> list:
-        return list(enemies[:self.taunt_radius])
+        return list(enemies[: self.taunt_radius])
 
 
 class Paladin(HealerMixin, TankMixin, Warrior):
@@ -220,12 +222,10 @@ class LoggableMixin:
         self.__dict__["_log"] = []
         super().__init__(*args, **kwargs)
 
-
     def __setattr__(self, name: str, value) -> None:
         if name != "_log":
             self._log.append(f"{name} = {value!r}")
         super().__setattr__(name, value)
-
 
     @property
     def log(self) -> list:

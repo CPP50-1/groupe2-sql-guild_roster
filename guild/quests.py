@@ -45,7 +45,8 @@ def combined_quest_feed() -> Iterator[Quest]:
 def endless_bounty_quests() -> Iterator[Quest]:
     for i in itertools.count(1):
         yield {
-            "name": f"Bounty Posting #{i}",
+            # "name": f"Bounty Posting #{i}",
+            "name": f"Bounty Contract #{i}",
             "reward_gold": 10 + i * 5,
             "min_level": 1 + i // 3,
         }
