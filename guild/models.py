@@ -93,12 +93,12 @@ class Character(metaclass=GuildMeta):
         """
         if isinstance(other, Character):  # Ensures we are comparing Characters
             return (
-                isinstance(other, type(self))
-                and self.name == other.name
+                self.name == other.name
                 and self.hp == other.hp
                 and self.level == other.level
             )
-        return False
+
+        return NotImplemented
 
     def __hash__(self) -> int:
         return hash((self.name, self.hp, self.level))
