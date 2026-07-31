@@ -37,12 +37,12 @@ Now, to turn it into a column-level plan :
 
 Produce a complete `CREATE TABLE` set:
 
-- [ ] One `CREATE TABLE` per entity.
-- [ ] One junction table per N-N relation. Relationship-owned attribute → </br>
+- [x] One `CREATE TABLE` per entity.
+- [x] One junction table per N-N relation. Relationship-owned attribute → </br>
       column on the junction table, not on either side.
-- [ ] FKs with a deliberate `ON DELETE` choice on each, be ready to say out loud
+- [x] FKs with a deliberate `ON DELETE` choice on each, be ready to say out loud
       why you picked `CASCADE` vs `SET NULL` vs `RESTRICT` for each one.
-- [ ] An index on every FK column (Postgres does not create these automatically).
+- [x] An index on every FK column (Postgres does not create these automatically).
 
 **Cross-group review:** once your group's DDL is written, present it to
 another group and justify your modeling choices.
