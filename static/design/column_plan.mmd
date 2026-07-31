@@ -1,0 +1,59 @@
+erDiagram
+    roster {
+        SERIAL id PK
+        VARCHAR(100) name UK "NOT NULL"
+    }
+
+    character {
+        SERIAL id PK
+        VARCHAR(50) name UK "NOT NULL"
+        INTEGER hp "NOT NULL, CHECK >= 0"
+        INTEGER level "NOT NULL, CHECK 1-100"
+        ENUM type "NOT NULL, (WARRIOR, MAGE, ROGUE)"
+        INTEGER roster_id FK "NULL if rosterless, ON DELETE SET NULL"
+    }
+
+    ability {
+        SERIAL id PK
+        VARCHAR(20) name UK "NOT NULL, CHECK IN (Tank, Healer)"
+        INTEGER taunt_radius "CHECK >= 0, NULL if not Tank"
+        INTEGER heal_power "CHECK >= 0, NULL if not Healer"
+    }
+
+    character_ability {
+        INTEGER character_id PK, FK "ON DELETE CASCADE"
+        INTEGER ability_id PK, FK "ON DELETE CASCADE"
+    }
+
+    item {
+        SERIAL id PK
+        VARCHAR(100) name UK "NOT NULL"
+        INTEGER value "NOT NULL, CHECK >= 0"
+        ENUM rarity "NOT NULL, (COMMON, UNCOMMON, RARE, EPIC, LEGENDARY)"
+    }
+
+    character_item {
+        INTEGER character_id PK, FK "ON DELETE CASCADE"
+        INTEGER item_id PK, FK "ON DELETE CASCADE"
+        INTEGER quantity "NOT NULL, CHECK > 0"
+    }
+
+    quest {
+        SERIAL id PK
+        VARCHAR(100) name UK "NOT NULL"
+        INTEGER reward_gold "NOT NULL, CHECK >= 0"
+        INTEGER min_level "NOT NULL, CHECK >= 1"
+    }
+
+    character_quest {
+        INTEGER character_id PK, FK "ON DELETE CASCADE"
+        INTEGER quest_id PK, FK "ON DELETE CASCADE"
+    }
+
+    character ||--o{ character_ability : ""
+    ability ||--o{ character_ability : ""
+    character ||--o{ character_item : ""
+    item ||--o{ character_item : ""
+    character ||--o{ character_quest : ""
+    quest ||--o{ character_quest : ""
+    roster ||--o{ character : ""

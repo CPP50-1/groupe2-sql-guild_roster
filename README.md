@@ -13,13 +13,13 @@ the HTML/CSS block will actually build against.
 The 1-N/N-N decisions have been made during the merge_and_decide.
 Now, to turn it into a column-level plan :
 
-- [ ] Every attribute → pick one type (`INTEGER`, `VARCHAR(n)`, `NUMERIC`,
+- [x] Every attribute → pick one type (`INTEGER`, `VARCHAR(n)`, `NUMERIC`,
       `DATE`, `BOOLEAN`...).
-- [ ] Every categorical attribute (status, rarity, class...) → write out its
+- [x] Every categorical attribute (status, rarity, class...) → write out its
       fixed list. This becomes a `CHECK` later.
-- [ ] Every entity → gets a `SERIAL` `id`. Any natural identifier (a unique
+- [x] Every entity → gets a `SERIAL` `id`. Any natural identifier (a unique
       name, a code) → add `UNIQUE` on top, don't replace the surrogate with it.
-- [ ] Ambiguous 1-N/N-N call from merge-and-decide → resolve now, not later.
+- [x] Ambiguous 1-N/N-N call from merge-and-decide → resolve now, not later.
 
 > Write this as an extension of your decision log (e.g.
 > match(
