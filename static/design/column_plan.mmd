@@ -15,9 +15,9 @@ erDiagram
 
     ability {
         SERIAL id PK
-        VARCHAR(20) name UK "NOT NULL, CHECK IN (Tank, Healer)"
-        INTEGER taunt_radius "CHECK >= 0, NULL if not Tank"
-        INTEGER heal_power "CHECK >= 0, NULL if not Healer"
+        VARCHAR(20) ability_name "NOT NULL, CHECK IN (Tank, Healer)"
+        VARCHAR(100) property_name "NOT NULL"
+        INTEGER property_value "NOT NULL"
     }
 
     character_ability {

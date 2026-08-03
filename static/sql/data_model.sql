@@ -20,16 +20,9 @@ CREATE INDEX idx_character_roster_id ON "character"(roster_id);
 
 CREATE TABLE ability (
     id SERIAL PRIMARY KEY,
-    ability_type ABILITY_TYPE UNIQUE NOT NULL,
-    -- ability_type itself could be the PRIMARY KEY but assignement says every entity should have a SERIAL id
-    taunt_radius INTEGER CHECK (taunt_radius >= 0),
-    -- taunt radius only relevent for tank
-    heal_power INTEGER CHECK (heal_power >= 0),
-    -- heal_power only relevent for healer
-    CHECK (
-        (ability_type = 'tank' AND taunt_radius IS NOT NULL AND heal_power IS NULL) OR
-        (ability_type = 'healer' AND heal_power IS NOT NULL AND taunt_radius IS NULL)
-    )
+    ability_type ABILITY_TYPE NOT NULL,
+    property_name VARCHAR(100) NOT NULL,
+    property_value INTEGER NOT NULL
 );
 
 CREATE TABLE character_ability (
