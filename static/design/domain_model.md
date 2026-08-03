@@ -1,0 +1,61 @@
+# Reconciled domain model
+
+## **Entities & key attributes**
+
+- `Roster` - name, characters
+- `Character` - name, hp, level, type (`MAGE`,`ROGUE`,`WARRIOR`)
+- `Ability`- name
+  - 'Tank' - taunt_radius
+  - 'Healer' - heal_power
+- `Item` - name, value, rarity (`COMMON`/`UNCOMMON`/`RARE`/`EPIC`/`LEGENDARY`)
+- `Quest` - name, reward, min_level
+
+## **Relations**
+
+| Relation                  | Type (note)          | Rationale behind it                                                                                                            |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `Roster` <-> `Character`  | 0..1 - 1..N          | a Character can be in none or at most one Roster; a Roster holds several Characters                                            |
+| `Quest` <-> `Character`   | 0..N - 0..N (note 1) | a Quest can be assigned to no or several Characters; a Character could do many Quest at the same time                          |
+| `Character` <-> `Ability` | 0..N - 0..N          | a Character can have none or several abilities (mixins, e.g. Tank / Healer); an Ability can be held by several Characters      |
+| `Character` -> `Item`     | 0..N - 0..N (note 2) | a Character could have none or many Items. An item is owned by none to several character.                                      |
+
+Notes:
+(1) There is discussion about
+
+- whether the Quest is assigned to a Roster or a Character. The quest_assignment function suggests it is assigned to one (or some) Character(s) and relates to the Roster through him (or them).
+
+(2) There is a discussion on what the Item represents.
+
+- If it represents a generic item (eg. a sword):
+  - the relationship towards Character is 0..N : More than one Character can have such an item.
+  - the relationship of Character towards Item is 0..1 if the Character can have a maximum of such an item. It is 0..N if a Character can have more than one such item.
+
+- If it represents a specific item with a proper identity (eg. The Excalibur sword)
+  - the relationship towards Character is 0..**1** : Only one Character may possess that specific item
+  - the relationship of Character towards Item is 0..**N** : A Character may possess zero or more specific items
+
+The following domain processes are also identified:
+
+- `combats` involves a Character vs. one implicit enemy (should enemy be also character?)
+
+## **Relationship-owned attribute(s)**
+
+- character_item.quantity: how many of a generic item a character holds; belongs to the character–item pairing, not to the character or the item alone.
+
+### Potential future additions
+
+- character_ability.proficiency: skill level with the ability (1–100).
+- character_quest.assigned_at: when the quest was assigned (timestamp).
+- character_quest.status: in_progress / completed / abandoned.
+- character_quest.completed_at: when the quest was finished (timestamp).
+
+## **A disagreement you resolved**
+
+- There is a debate on what a Guild is. Since the concept doesn't clearly emerge from the code base. It is left off: It is considered a Guild is equivalent to a Roster.
+- The code base to chose, which one of our previous groups? They should be similar after all. So we used a random wheel to select our code base. A more idiomatic aproach would have been to merge all 4 groups code and pick the best options where a difference emerge.
+
+## **Design Decision Note:**
+
+- Chest loot (item + amount, with gold as an item row) was considered but dropped for simplicity, it could be added later.
+- Dungeon / Floor / floor_encounter are dropped. The code has no Dungeon class (floors come from an endless generator), encounters are transient, and they add no value for the current build.
+- Quest types (Daily / Guild / Event / Bounty) were considered as a discriminator but dropped. The code stores no `type` on quests (it is only which generator produced the row), so all quests share the same shape.
